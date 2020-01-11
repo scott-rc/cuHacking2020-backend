@@ -1,46 +1,33 @@
+require("dotenv").config();
 import express from "express";
 import http from "http";
-import socketio from "socket.io";
-import uuid from "uuid";
-import event from "./event";
-import { User } from "./types";
+import WebSocket from "ws";
 
 const app = express();
 const server = http.createServer(app);
-const io = socketio(server);
-let users: User[] = [];
 
 app.get("/health", (req, res) => {
   res.json({ status: "healthy" });
 });
 
-io.on("connection", socket => {
-  console.log("user connected");
-  users.push({ uuid: uuid.v4(), socketId: socket.id });
+const wss = new WebSocket.Server({ clientTracking: false, noServer: true });
 
-  socket.on(event.createdTask, message => {
-    console.log(`received "${event.createdTask}":`, message);
+server.on("upgrade", (request, socket, head) => {
+  wss.handleUpgrade(request, socket, head, ws => {
+    wss.emit("connection", ws, request);
+  });
+});
+
+wss.on("connection", (ws, request) => {
+  console.log("socket connected", ws, request);
+
+  ws.on("message", message => {
+    console.log(`Received message ${message}`);
+    ws.send(message);
   });
 
-  socket.on(event.movedTask, message => {
-    console.log(`received "${event.movedTask}":`, message);
-  });
-
-  socket.on(event.deletedTask, message => {
-    console.log(`received "${event.deletedTask}"`, message);
-  });
-
-  socket.on(event.renamedTask, message => {
-    console.log(`received "${event.renamedTask}"`, message);
-  });
-
-  socket.on(event.resetBoard, message => {
-    console.log(`received "${event.resetBoard}"`, message);
-  });
-
-  socket.on("disconnected", () => {
-    console.log("user disconnected");
-    users = users.filter(u => u.socketId == socket.id);
+  ws.on("close", () => {
+    console.log("socket disconnected");
   });
 });
 
