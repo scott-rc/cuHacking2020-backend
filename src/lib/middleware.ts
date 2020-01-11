@@ -1,17 +1,33 @@
 import { Application, NextFunction, Request, Response } from "express";
 import { ValidationError } from "yup";
 import logger from "./logger";
+import bodyParser = require("body-parser");
 
-export default (app: Application): Application => {
+export const beforeRoutes = (app: Application): Application => {
+  // request logger
+  app.use((req, _res, next) => {
+    logger.beginDebug("received request to: %s", req.url);
+    next();
+  });
+
+  // json body parser
+  app.use(bodyParser.json());
+
+  return app;
+};
+
+export const afterRoutes = (app: Application): Application => {
   // error handler
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+  app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
     if (err instanceof ValidationError) {
       logger.continueWarn("valdiation error: %s", err);
-      res.status(422).json(err.message);
+      res.status(422).json({ error: err.message });
     } else {
       logger.continueError("unknown error: %s", err);
-      res.status(500).json(err.toString());
+      res.status(500).json({ error: err.toString() });
     }
+
+    next();
   });
 
   return app;

@@ -1,3 +1,6 @@
+drop table task;
+drop table state;
+
 create table state (
     state_id int primary key,
     value text,

@@ -1,8 +1,14 @@
 import db from "../lib/db";
 import { newTaskValidator } from "../lib/validation";
-import { NewTask } from "../types";
+import { NewTask, Task } from "../types";
 
-export const save = async (newTask: NewTask): Promise<void> => {
-  const task = await newTaskValidator.validate(newTask);
-  await db.table("task").insert(task);
+export const save = async (task: NewTask): Promise<Task> => {
+  const newTask = await newTaskValidator.validate(task);
+
+  const [createdTask] = await db
+    .table("task")
+    .insert(newTask)
+    .returning("*");
+
+  return createdTask;
 };

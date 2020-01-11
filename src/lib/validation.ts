@@ -6,7 +6,7 @@ export const eventValidator = yup
   .object({
     type: yup
       .string()
-      .oneOf(["POSITION_CHANGE", "AUTOCONNECT"])
+      .oneOf(["POSITION_CHANGE", "CONNECT"])
       .required(),
     data: yup
       .object({

@@ -1,3 +1,5 @@
+import WebSocket = require("ws");
+
 export interface Status {
   statusId: number;
   value: string;
@@ -11,7 +13,14 @@ export interface NewTask {
 
 export interface Task extends NewTask {
   taskId: number;
-  status: Status;
+  statusId: number;
   createdAt: number;
   updatedAt?: number;
+}
+
+export interface Session {
+  id: string;
+  ws: WebSocket;
+  puckId: number;
+  taskId?: number;
 }
