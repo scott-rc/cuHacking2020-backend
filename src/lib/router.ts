@@ -37,14 +37,16 @@ export default (app: Application): Application => {
       }
 
       logger.continueDebug("emitting UPDATE event to puck: %s", puck.puckId);
-      puck.ws.send({
-        event: {
-          type: "UPDATE",
-          data: {
-            title: createdTask.title
+      puck.ws.send(
+        JSON.stringify({
+          event: {
+            type: "UPDATE",
+            data: {
+              title: createdTask.title
+            }
           }
-        }
-      });
+        })
+      );
     })
   );
 

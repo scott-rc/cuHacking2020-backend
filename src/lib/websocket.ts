@@ -43,12 +43,16 @@ export default (server: Server): Server => {
               session.puckId = event.data.id;
             } else {
               logger.continueError("couldn't find session");
-              ws.send({ error: "unknown puck id: " + event.data.id || "null" });
+              ws.send(
+                JSON.stringify({
+                  error: "unknown puck id: " + event.data.id || "null"
+                })
+              );
             }
             break;
           default:
             logger.continueError("unknown event: %s", event.type);
-            ws.send({ error: "unknown event: " + event.type });
+            ws.send(JSON.stringify({ error: "unknown event: " + event.type }));
         }
       } catch (err) {
         if (err instanceof ValidationError) {
