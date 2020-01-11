@@ -67,6 +67,11 @@ export default (server: Server): Server => {
 
     ws.on("close", () => {
       logger.debug("socket disconnected");
+      const index = state.findIndex(x => x.id === id);
+
+      if (index) {
+        delete state[index];
+      }
     });
   });
 
