@@ -1,0 +1,23 @@
+{
+  "name": "cuHacking",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "ts-node src/index.ts"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "socket.io": "^2.3.0",
+    "uuid": "^3.3.3"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.2",
+    "@types/node": "^13.1.6",
+    "@types/socket.io": "^2.1.4",
+    "@types/uuid": "^3.4.6",
+    "ts-node": "^8.6.1",
+    "typescript": "^3.7.4"
+  }
+}
