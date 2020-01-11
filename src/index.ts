@@ -10,12 +10,20 @@ const server = http.createServer(app);
 const io = socketio(server);
 let users: User[] = [];
 
+app.get("/health", (req, res) => {
+  res.json({ status: "healthy" });
+});
+
 io.on("connection", socket => {
   console.log("user connected");
   users.push({ uuid: uuid.v4(), socketId: socket.id });
 
   socket.on(event.createdTask, message => {
     console.log(`received "${event.createdTask}":`, message);
+  });
+
+  socket.on(event.movedTask, message => {
+    console.log(`received "${event.movedTask}":`, message);
   });
 
   socket.on(event.deletedTask, message => {
