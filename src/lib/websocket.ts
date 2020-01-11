@@ -57,7 +57,7 @@ export default (server: Server): Server => {
           logger.continueError("unknown error: %s", err);
         }
 
-        ws.send({ error: err.message || "unexpected error" });
+        ws.send(JSON.stringify({ error: err.message || "unexpected error" }));
       }
     });
 
