@@ -17,13 +17,12 @@ export default (server: Server): Server => {
 
   wss.on("connection", (ws, request) => {
     const id = uuid.v4();
-    logger.beginDebug("socket connected: %s", id);
-    state.push({ id, ws, puckId: -1 });
+    logger.debug("socket connected: %s", id);
 
     ws.on("message", async message => {
       try {
         logger.beginDebug("received message %o", message);
-        logger.beginDebug("parsing message...");
+        logger.continueDebug("parsing message...");
         const payload = JSON.parse(message.toString());
 
         logger.continueDebug("validating event: %o", payload.event);
@@ -32,23 +31,10 @@ export default (server: Server): Server => {
         logger.continueDebug("figuring out event type...");
         switch (event.type) {
           case "CONNECT":
-            logger.continueDebug("received connect");
+            logger.continueDebug("received CONNECT");
 
-            logger.continueDebug("looking for session with id %s", id);
-            const session = state.find(x => x.id === id);
-
-            if (session) {
-              logger.continueDebug("found session");
-              logger.continueDebug("setting puckId: %s", event.data.id);
-              session.puckId = event.data.id;
-            } else {
-              logger.continueError("couldn't find session");
-              ws.send(
-                JSON.stringify({
-                  error: "unknown puck id: " + event.data.id || "null"
-                })
-              );
-            }
+            logger.continueDebug("setting puckId: %s", event.data.id);
+            state.push({ id, ws, puckId: event.data.id });
             break;
           default:
             logger.continueError("unknown event: %s", event.type);
@@ -66,11 +52,16 @@ export default (server: Server): Server => {
     });
 
     ws.on("close", () => {
-      logger.debug("socket disconnected");
+      logger.debug("socket disconnected: %s", id);
+
+      logger.debug("looking for session...");
       const index = state.findIndex(x => x.id === id);
 
       if (index) {
+        logger.debug("found session, deleting");
         delete state[index];
+      } else {
+        logger.warn("couldn't find session");
       }
     });
   });
