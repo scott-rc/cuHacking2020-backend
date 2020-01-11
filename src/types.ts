@@ -1,14 +1,17 @@
-export type Status = {
+export interface Status {
   statusId: number;
   value: string;
-};
+  createdAt: number;
+  updatedAt?: number;
+}
 
-export type Task = {
+export interface NewTask {
+  title: string;
+}
+
+export interface Task extends NewTask {
   taskId: number;
-  title: string;
   status: Status;
-};
-
-export type Create = {
-  title: string;
-};
+  createdAt: number;
+  updatedAt?: number;
+}
