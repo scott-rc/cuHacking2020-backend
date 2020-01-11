@@ -5,7 +5,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "start": "ts-node src/index.ts"
+    "start": "./node_modules/.bin/ts-node src/index.ts"
   },
   "dependencies": {
     "express": "^4.17.1",
