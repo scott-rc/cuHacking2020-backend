@@ -28,16 +28,21 @@ export default (app: Application): Application => {
       const createdTask = await task.save(newTask);
       res.status(201).json({ status: "success", data: { task: createdTask } });
 
-      logger.continueDebug("finding puck without task...");
-      const puck = state.find(x => x.puckId !== -1 && x.taskId == null);
+      logger.continueDebug("finding session without task...");
+      const session = state.find(x => x.puckId !== -1 && x.taskId == null);
 
-      if (!puck) {
-        logger.continueDebug("couldn't find a puck without a task id");
+      if (!session) {
+        logger.continueDebug("couldn't find a session without a task");
         return;
       }
 
-      logger.continueDebug("emitting UPDATE event to puck: %s", puck.puckId);
-      puck.ws.send(
+      logger.continueDebug(
+        "emitting UPDATE event to puck: %s (%s)",
+        session.puckId,
+        session.id
+      );
+
+      session.ws.send(
         JSON.stringify({
           event: {
             type: "UPDATE",

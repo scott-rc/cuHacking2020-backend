@@ -6,6 +6,25 @@ import logger from "./logger";
 import state from "./state";
 import { eventValidator } from "./validation";
 
+setInterval(() => {
+  logger.beginDebug("checking if any sockets are dead");
+
+  for (let i = 0; i < state.length; i++) {
+    const session = state[i];
+
+    if (!session.isAlive) {
+      logger.continueDebug("terminating socket: %s", session.id);
+      session.ws.terminate();
+      continue;
+    }
+
+    session.isAlive = false;
+    session.ws.ping();
+  }
+
+  logger.continueDebug("finished checking sockets");
+}, 10000);
+
 export default (server: Server): Server => {
   const wss = new WebSocket.Server({ clientTracking: false, noServer: true });
 
@@ -20,10 +39,21 @@ export default (server: Server): Server => {
     logger.debug("socket connected: %s", id);
     state.push({ id, ws, isAlive: true, puckId: -1 });
 
+    ws.on("ping", () => {
+      logger.beginDebug("received ping: %s", id);
+
+      logger.continueDebug("sending pong");
+      ws.pong();
+    });
+
     ws.on("pong", () => {
+      logger.beginDebug("received pong: %s", id);
+
+      logger.continueDebug("looking for session...");
       const session = state.find(x => x.id === id);
 
       if (session) {
+        logger.continueDebug("setting socket as alive");
         session.isAlive = true;
       }
     });
@@ -73,33 +103,24 @@ export default (server: Server): Server => {
     });
 
     ws.on("close", () => {
-      logger.debug("socket disconnected: %s", id);
+      logger.beginDebug("socket disconnected: %s", id);
 
-      logger.debug("looking for session...");
+      logger.continueDebug("looking for session...");
       const index = state.findIndex(x => x.id === id);
 
       if (index === -1) {
-        logger.warn("couldn't find session");
+        logger.continueWarn("couldn't find session");
       } else {
-        logger.debug("terminating session");
-        state[index].ws.terminate();
+        logger.continueDebug("removing session");
         state.splice(index, 1);
       }
     });
 
     ws.on("error", () => {
-      logger.debug("socket error: %s", id);
+      logger.beginDebug("socket error: %s", id);
 
-      logger.debug("looking for session...");
-      const index = state.findIndex(x => x.id === id);
-
-      if (index) {
-        logger.debug("terminating session");
-        state[index].ws.terminate();
-        state.splice(index, 1);
-      } else {
-        logger.warn("couldn't find session");
-      }
+      logger.continueDebug("terminating socket");
+      ws.terminate();
     });
   });
 
