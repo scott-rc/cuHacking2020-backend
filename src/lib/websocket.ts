@@ -64,6 +64,20 @@ export default (server: Server): Server => {
         logger.warn("couldn't find session");
       }
     });
+
+    ws.on("error", () => {
+      logger.debug("socket error: %s", id);
+
+      logger.debug("looking for session...");
+      const index = state.findIndex(x => x.id === id);
+
+      if (index) {
+        logger.debug("found session, deleting");
+        delete state[index];
+      } else {
+        logger.warn("couldn't find session");
+      }
+    });
   });
 
   return server;
