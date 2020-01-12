@@ -61,7 +61,7 @@ export const update = async (updateTask: UpdateTask): Promise<void> => {
           type: "POSITION_CHANGE",
           data: {
             id: updateTask.taskId,
-            statusId: updateTask.statusId
+            stateId: updateTask.stateId
           }
         }
       })

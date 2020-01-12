@@ -108,7 +108,7 @@ export const puckPositionChange = async (
   logger.continueDebug("creating update task...");
   const updateTask = await updateTaskValidator.validate({
     taskId: session.taskId,
-    statusId: event.data.column
+    stateId: event.data.column
   });
 
   await taskService.update(updateTask as any);

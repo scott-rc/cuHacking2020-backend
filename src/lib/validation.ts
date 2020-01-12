@@ -1,7 +1,7 @@
 import * as yup from "yup";
 
 export const titleValidator = yup.string().required();
-export const statusIdValidator = yup
+export const stateIdValidator = yup
   .number()
   .required()
   .oneOf([-1, 1, 2, 3]);
@@ -26,7 +26,7 @@ export const eventValidator = yup
 export const positionChangeEventValidator = eventValidator.concat(
   yup.object({
     data: yup.object({
-      column: statusIdValidator
+      column: stateIdValidator
     })
   })
 );
@@ -41,5 +41,5 @@ export const updateTaskValidator = yup.object({
     .positive()
     .required(),
   title: titleValidator.notRequired(),
-  statusId: statusIdValidator.notRequired()
+  stateId: stateIdValidator.notRequired()
 });

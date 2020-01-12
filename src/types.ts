@@ -1,7 +1,7 @@
 import WebSocket from "ws";
 
 export interface Status {
-  statusId: number;
+  stateId: number;
   value: string;
   createdAt: number;
   updatedAt?: number;
@@ -14,12 +14,12 @@ export interface NewTask {
 export interface UpdateTask {
   taskId: number;
   title?: string;
-  statusId?: string;
+  stateId?: string;
 }
 
 export interface Task extends NewTask {
   taskId: number;
-  statusId: number;
+  stateId: number;
   createdAt: number;
   updatedAt?: number;
 }
