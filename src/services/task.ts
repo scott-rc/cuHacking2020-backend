@@ -1,10 +1,10 @@
 import db from "../lib/db";
 import logger from "../lib/logger";
-import sessions from "../lib/sessions";
+import { clientSessions, puckSessions } from "../lib/state";
 import { newTaskValidator } from "../lib/validation";
-import { NewTask, Task } from "../types";
+import { NewTask, Task, UpdateTask } from "../types";
 
-export const save = async (task: NewTask): Promise<Task> => {
+export const create = async (task: NewTask): Promise<Task> => {
   logger.continueDebug("validating new task: %o", task);
   const newTask = await newTaskValidator.validate(task);
 
@@ -17,7 +17,7 @@ export const save = async (task: NewTask): Promise<Task> => {
   logger.continueDebug("saved task to the db: %o", createdTask);
 
   logger.continueDebug("finding session without task...");
-  const session = sessions.find(x => x.puckId !== -1 && x.taskId == null);
+  const session = puckSessions.find(x => x.puckId !== -1 && x.taskId == null);
 
   if (!session) {
     logger.continueDebug("couldn't find a session without a task");
@@ -44,4 +44,24 @@ export const save = async (task: NewTask): Promise<Task> => {
   );
 
   return createdTask;
+};
+
+export const update = async (updateTask: UpdateTask): Promise<void> => {
+  logger.continueDebug("updating task: %o", updateTask);
+  await db.table("task").update(updateTask);
+
+  logger.continueDebug("emitting POSITION_CHANGE event to clients");
+  clientSessions.forEach(session => {
+    session.ws.send(
+      JSON.stringify({
+        event: {
+          type: "POSITION_CHANGE",
+          data: {
+            id: updateTask.taskId,
+            statusId: updateTask.statusId
+          }
+        }
+      })
+    );
+  });
 };

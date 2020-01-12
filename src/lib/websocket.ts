@@ -1,15 +1,28 @@
 import { Server } from "http";
 import uuid from "uuid";
 import WebSocket from "ws";
-import * as event from "../services/event";
+import { clientSessions, puckSessions } from "../lib/state";
+import * as websocketService from "../services/websocket";
 import logger from "./logger";
-import sessions from "./sessions";
 
 setInterval(() => {
   logger.beginDebug("checking if any sockets are dead");
 
-  for (let i = 0; i < sessions.length; i++) {
-    const session = sessions[i];
+  for (let i = 0; i < puckSessions.length; i++) {
+    const session = puckSessions[i];
+
+    if (!session.isAlive) {
+      logger.continueDebug("terminating socket: %s", session.id);
+      session.ws.terminate();
+      continue;
+    }
+
+    session.isAlive = false;
+    session.ws.ping();
+  }
+
+  for (let i = 0; i < clientSessions.length; i++) {
+    const session = clientSessions[i];
 
     if (!session.isAlive) {
       logger.continueDebug("terminating socket: %s", session.id);
@@ -33,19 +46,24 @@ export default (server: Server): Server => {
     });
   });
 
-  wss.on("connection", ws => {
+  wss.on("connection", (ws, req) => {
     const id = uuid.v4();
     logger.beginDebug("socket connected: %s", id);
 
-    logger.continueDebug("creating session");
-    sessions.push({ id, ws, isAlive: true, puckId: -1 });
+    if (req.url === "/puck") {
+      logger.continueDebug("creating puck session");
+      puckSessions.push({ id, ws, isAlive: true, puckId: -1 });
+    } else {
+      logger.continueDebug("creating client session");
+      clientSessions.push({ id, ws, isAlive: true });
+    }
 
     logger.continueDebug("setting handlers");
-    ws.on("ping", event.ping(id, ws));
-    ws.on("pong", event.pong(id));
-    ws.on("message", event.message(id, ws));
-    ws.on("close", event.close(id));
-    ws.on("error", event.error(id, ws));
+    ws.on("ping", websocketService.ping(id, ws));
+    ws.on("pong", websocketService.pong(id));
+    ws.on("message", websocketService.message(id, ws));
+    ws.on("close", websocketService.close(id));
+    ws.on("error", websocketService.error(id, ws));
   });
 
   return server;

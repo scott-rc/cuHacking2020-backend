@@ -1,6 +1,6 @@
 import { Application } from "express";
 import asyncHandler from "../lib/async-handler";
-import * as task from "../services/task";
+import * as taskService from "../services/task";
 import db from "./db";
 import logger from "./logger";
 import { newTaskValidator } from "./validation";
@@ -24,7 +24,7 @@ export default (app: Application): Application => {
       const newTask = await newTaskValidator.validate(req.body);
 
       logger.continueDebug("saving new task: %o", newTask);
-      const createdTask = await task.save(newTask);
+      const createdTask = await taskService.create(newTask);
 
       logger.continueDebug("sending successful response");
       res.status(201).json({ status: "success", data: { task: createdTask } });
