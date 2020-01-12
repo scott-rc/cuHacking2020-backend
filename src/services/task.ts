@@ -26,6 +26,9 @@ export const create = async (task: NewTask): Promise<Task> => {
 
   logger.continueDebug("found a session without a task: %s", session.id);
 
+  logger.continueDebug("setting task id on session");
+  session.taskId = createdTask.taskId;
+
   logger.continueDebug(
     "emitting UPDATE event to puck: %s (%s)",
     session.puckId,
