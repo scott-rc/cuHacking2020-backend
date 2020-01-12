@@ -17,6 +17,16 @@ export default (app: Application): Application => {
     })
   );
 
+  app.get(
+    "/task",
+    asyncHandler(async (_req, res) => {
+      logger.continueDebug("loading all tasks...");
+      const tasks = await db.select().from("task");
+
+      res.status(200).json(tasks);
+    })
+  );
+
   app.post(
     "/task",
     asyncHandler(async (req, res) => {
