@@ -66,7 +66,7 @@ export const update = async (
         event: {
           type: "POSITION_CHANGE",
           data: {
-            id: taskId,
+            taskId,
             stateId: updateTask.stateId
           }
         }
