@@ -17,9 +17,10 @@ export type Logger = WinstonLogger & {
 const format = f.combine(
   f.timestamp({ format: "YYYY-MM-DD hh:mm:ss:ms A" }),
   f.splat(),
+  f.colorize(),
   f.printf(
     ({ level, message, timestamp }) =>
-      `${`[${level}]`.padStart(7)} ${timestamp} ${message}`
+      `${`[${level}]`.padStart(17)} ${timestamp} ${message}`
   )
 );
 
