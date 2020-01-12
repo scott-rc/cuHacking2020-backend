@@ -41,5 +41,15 @@ export default (app: Application): Application => {
     })
   );
 
+  app.delete(
+    "/task",
+    asyncHandler(async (req, res) => {
+      logger.continueDebug("deleting all tasks");
+      await db.table("task").delete();
+
+      return res.status(200).json({ status: "success" });
+    })
+  );
+
   return app;
 };
