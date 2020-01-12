@@ -26,7 +26,7 @@ export default (app: Application): Application => {
 
       logger.continueDebug("saving new task: %o", newTask);
       const createdTask = await task.save(newTask);
-      res.status(201).json({ status: "success" });
+      res.status(201).json({ status: "success", data: { task: createdTask } });
 
       logger.continueDebug("finding puck without task...");
       const puck = state.find(x => x.taskId == null);
