@@ -29,7 +29,7 @@ export default (app: Application): Application => {
       res.status(201).json({ status: "success", data: { task: createdTask } });
 
       logger.continueDebug("finding puck without task...");
-      const puck = state.find(x => x.taskId == null);
+      const puck = state.find(x => x.puckId !== -1 && x.taskId == null);
 
       if (!puck) {
         logger.continueDebug("couldn't find a puck without a task id");

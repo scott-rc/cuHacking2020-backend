@@ -18,6 +18,15 @@ export default (server: Server): Server => {
   wss.on("connection", (ws, request) => {
     const id = uuid.v4();
     logger.debug("socket connected: %s", id);
+    state.push({ id, ws, isAlive: true, puckId: -1 });
+
+    ws.on("pong", () => {
+      const session = state.find(x => x.id === id);
+
+      if (session) {
+        session.isAlive = true;
+      }
+    });
 
     ws.on("message", async message => {
       try {
@@ -33,8 +42,20 @@ export default (server: Server): Server => {
           case "CONNECT":
             logger.continueDebug("received CONNECT");
 
-            logger.continueDebug("setting puckId: %s", event.data.id);
-            state.push({ id, ws, puckId: event.data.id });
+            logger.continueDebug("looking for session...");
+            const session = state.find(x => x.id === id);
+
+            if (session) {
+              logger.continueDebug("setting puckId: %s", event.data.id);
+              session.puckId = event.data.id;
+            } else {
+              logger.continueWarn("coudn't find session for socket: %s", id);
+              ws.send(
+                JSON.stringify({
+                  error: "internal error: couldn't find session"
+                })
+              );
+            }
             break;
           default:
             logger.continueError("unknown event: %s", event.type);
@@ -57,11 +78,12 @@ export default (server: Server): Server => {
       logger.debug("looking for session...");
       const index = state.findIndex(x => x.id === id);
 
-      if (index) {
-        logger.debug("found session, deleting");
-        delete state[index];
-      } else {
+      if (index === -1) {
         logger.warn("couldn't find session");
+      } else {
+        logger.debug("terminating session");
+        state[index].ws.terminate();
+        state.splice(index, 1);
       }
     });
 
@@ -72,8 +94,9 @@ export default (server: Server): Server => {
       const index = state.findIndex(x => x.id === id);
 
       if (index) {
-        logger.debug("found session, deleting");
-        delete state[index];
+        logger.debug("terminating session");
+        state[index].ws.terminate();
+        state.splice(index, 1);
       } else {
         logger.warn("couldn't find session");
       }

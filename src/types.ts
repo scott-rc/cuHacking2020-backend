@@ -23,4 +23,5 @@ export interface Session {
   ws: WebSocket;
   puckId: number;
   taskId?: number;
+  isAlive: boolean;
 }

@@ -11,18 +11,25 @@ const app = middleware.afterRoutes(router(middleware.beforeRoutes(express())));
 const server = websocket(http.createServer(app));
 
 setInterval(() => {
-  logger.beginDebug("checking if any sessions are invalid...");
+  logger.beginDebug("checking if any sessions are invalid");
 
   for (let i = 0; i < state.length; i++) {
-    if (state[i].ws.OPEN === 3) {
-      logger.continueDebug("deleting closed session: %s", state[i].id);
-      delete state[i];
+    const session = state[i];
+
+    if (session.isAlive === false) {
+      logger.continueDebug("deleting invalid session: %s", session.id);
+      session.ws.terminate();
+      state.splice(i, 1);
+      continue;
     }
+
+    session.isAlive = false;
+    session.ws.ping();
   }
 
   logger.continueDebug("finished checking sessions");
-}, 5000);
+}, 30000);
 
 server.listen(process.env.PORT, () => {
-  logger.info(`listenting on port ${process.env.PORT}`);
+  logger.info(`listening on port ${process.env.PORT}`);
 });
