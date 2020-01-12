@@ -5,14 +5,21 @@ import logger from "./logger";
 import bodyParser = require("body-parser");
 
 export const beforeRoutes = (app: Application): Application => {
+  // request logger
+  app.use((req, res, next) => {
+    logger.beginDebug("received request to: %s", req.url);
+    const start = Date.now();
+
+    next();
+
+    res.on("finish", () => {
+      const end = Date.now();
+      logger.continueDebug("request finished in %dms", end - start);
+    });
+  });
+
   // add cors
   app.use(cors());
-
-  // request logger
-  app.use((req, _res, next) => {
-    logger.beginDebug("received request to: %s", req.url);
-    next();
-  });
 
   // json body parser
   app.use(bodyParser.json());
@@ -25,10 +32,10 @@ export const afterRoutes = (app: Application): Application => {
   app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
     if (err instanceof ValidationError) {
       logger.continueWarn("valdiation error: %s", err);
-      res.status(422).json({ error: err.message });
+      res.status(400).json({ status: "error", error: err.message });
     } else {
       logger.continueError("unknown error: %s", err);
-      res.status(500).json({ error: err.toString() });
+      res.status(500).json({ status: "error", error: err.toString() });
     }
 
     next();
