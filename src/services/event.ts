@@ -26,7 +26,7 @@ export const clientConnect = (
     logger.continueWarn("coudn't find session for socket: %s", id);
     ws.send(
       JSON.stringify({
-        error: "internal error: couldn't find session"
+        error: "couldn't find session"
       })
     );
   }
@@ -63,7 +63,7 @@ export const puckConnect = (
     logger.continueWarn("coudn't find session for socket: %s", id);
     ws.send(
       JSON.stringify({
-        error: "internal error: couldn't find session"
+        error: "couldn't find session"
       })
     );
   }
@@ -71,6 +71,7 @@ export const puckConnect = (
 
 export const puckPositionChange = async (
   id: string,
+  ws: WebSocket,
   maybeEvent: PuckPositionChangeEvent
 ) => {
   logger.continueDebug("validating event: %o", maybeEvent);
@@ -80,7 +81,22 @@ export const puckPositionChange = async (
   const session = puckSessions.find(x => x.id === id);
 
   if (!session) {
-    logger.continueDebug("couldn't find session");
+    logger.continueWarn("couldn't find session");
+    ws.send(
+      JSON.stringify({
+        error: "couldn't find session"
+      })
+    );
+    return;
+  }
+
+  if (!session.taskId) {
+    logger.continueWarn("session didn't contain a task id: %s", session.id);
+    ws.send(
+      JSON.stringify({
+        error: "you're not associated to a task"
+      })
+    );
     return;
   }
 
@@ -93,12 +109,17 @@ export const puckPositionChange = async (
   await taskService.update(updateTask as any);
 };
 
-export const puckReset = (id: string) => {
+export const puckReset = (id: string, ws: WebSocket) => {
   logger.continueDebug("looking for session...");
   const session = puckSessions.find(x => x.id === id);
 
   if (!session) {
     logger.continueDebug("couldn't find session");
+    ws.send(
+      JSON.stringify({
+        error: "couldn't find session"
+      })
+    );
     return;
   }
 

@@ -49,11 +49,11 @@ export const message = (id: string, ws: WebSocket) => async (message: Data) => {
         break;
       case "POSITION_CHANGE":
         logger.continueDebug("received POSITION_CHANGE");
-        eventService.puckPositionChange(id, event as any);
+        eventService.puckPositionChange(id, ws, event as any);
         break;
       case "RESET":
         logger.continueDebug("received RESET");
-        eventService.puckReset(id);
+        eventService.puckReset(id, ws);
         break;
       default:
         logger.continueError("unknown event: %s", event.type);
