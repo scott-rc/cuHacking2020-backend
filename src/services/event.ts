@@ -107,11 +107,10 @@ export const puckPositionChange = async (
 
   logger.continueDebug("creating update task...");
   const updateTask = await updateTaskValidator.validate({
-    taskId: session.taskId,
     stateId: event.data.column
   });
 
-  await taskService.update(updateTask as any);
+  await taskService.update(session.taskId, updateTask as any);
 };
 
 export const puckReset = (id: string, ws: WebSocket) => {

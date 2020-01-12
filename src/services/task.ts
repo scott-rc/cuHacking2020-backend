@@ -49,9 +49,15 @@ export const create = async (task: NewTask): Promise<Task> => {
   return createdTask;
 };
 
-export const update = async (updateTask: UpdateTask): Promise<void> => {
+export const update = async (
+  taskId: number,
+  updateTask: UpdateTask
+): Promise<void> => {
   logger.continueDebug("updating task: %o", updateTask);
-  await db.table("task").update(updateTask);
+  await db
+    .table("task")
+    .update(updateTask)
+    .where({ taskId });
 
   logger.continueDebug("emitting POSITION_CHANGE event to clients");
   clientSessions.forEach(session => {
