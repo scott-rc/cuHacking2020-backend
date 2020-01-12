@@ -77,6 +77,11 @@ export const puckPositionChange = async (
   logger.continueDebug("validating event: %o", maybeEvent);
   const event = await positionChangeEventValidator.validate(maybeEvent);
 
+  if (event.data.column === -1) {
+    logger.continueDebug("puck was moved off board, nothing to do");
+    return;
+  }
+
   logger.continueDebug("looking for session...");
   const session = puckSessions.find(x => x.id === id);
 
