@@ -1,9 +1,13 @@
+import cors from "cors";
 import { Application, NextFunction, Request, Response } from "express";
 import { ValidationError } from "yup";
 import logger from "./logger";
 import bodyParser = require("body-parser");
 
 export const beforeRoutes = (app: Application): Application => {
+  // add cors
+  app.use(cors());
+
   // request logger
   app.use((req, _res, next) => {
     logger.beginDebug("received request to: %s", req.url);
