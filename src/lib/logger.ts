@@ -14,27 +14,14 @@ export type Logger = WinstonLogger & {
   continueError: LogFunction;
 };
 
-let format;
-if (process.env.NODE_ENV === "production") {
-  format = f.combine(
-    f.timestamp({ format: "YYYY-MM-DD hh:mm:ss:ms A" }),
-    f.splat(),
-    f.printf(
-      ({ level, message, timestamp }) =>
-        `${`[${level}]`.padStart(7)} ${timestamp} ${message}`
-    )
-  );
-} else {
-  format = f.combine(
-    f.timestamp({ format: "YYYY-MM-DD hh:mm:ss:ms A" }),
-    f.splat(),
-    f.colorize(),
-    f.printf(
-      ({ level, message, timestamp }) =>
-        `${`[${level}]`.padStart(17)} ${timestamp} ${message}`
-    )
-  );
-}
+const format = f.combine(
+  f.timestamp({ format: "YYYY-MM-DD hh:mm:ss:ms A" }),
+  f.splat(),
+  f.printf(
+    ({ level, message, timestamp }) =>
+      `${`[${level}]`.padStart(7)} ${timestamp} ${message}`
+  )
+);
 
 const logger = createLogger({
   level: process.env.LOG_LEVEL,
