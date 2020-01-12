@@ -4,7 +4,7 @@ export const titleValidator = yup.string().required();
 export const statusIdValidator = yup
   .number()
   .required()
-  .oneOf([1, 2, 3]);
+  .oneOf([-1, 1, 2, 3]);
 
 export const eventValidator = yup
   .object({
