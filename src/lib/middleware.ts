@@ -7,7 +7,7 @@ import bodyParser = require("body-parser");
 export const beforeRoutes = (app: Application): Application => {
   // request logger
   app.use((req, res, next) => {
-    logger.beginDebug("received request to: %s", req.url);
+    logger.beginDebug("received: %s %s", req.method, req.url);
     const start = Date.now();
 
     next();
