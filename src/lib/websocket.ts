@@ -23,7 +23,7 @@ setInterval(() => {
   }
 
   logger.continueDebug("finished checking sockets");
-}, 10000);
+}, parseInt(process.env.SESSION_TIMEOUT as string));
 
 export default (server: Server): Server => {
   const wss = new WebSocket.Server({ clientTracking: false, noServer: true });
