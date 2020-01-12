@@ -13,17 +13,17 @@ export const ping = (id: string, ws: WebSocket) => () => {
 };
 
 export const pong = (id: string) => () => {
-  logger.beginDebug("received pong: %s", id);
+  logger.continueDebug("received pong: %s", id);
 
-  logger.continueDebug("looking for session...");
+  logger.continueDebug(" - looking for session...");
   const session =
     puckSessions.find(x => x.id === id) ||
     clientSessions.find(x => x.id === id);
 
   if (session) {
-    logger.continueDebug("found session");
+    logger.continueDebug(" - found session");
 
-    logger.continueDebug("setting socket as alive");
+    logger.continueDebug(" - setting socket as alive");
     session.isAlive = true;
   }
 };

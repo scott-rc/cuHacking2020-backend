@@ -6,13 +6,13 @@ import * as websocketService from "../services/websocket";
 import logger from "./logger";
 
 setInterval(() => {
-  logger.beginDebug("checking if any sockets are dead");
+  logger.beginDebug("pinging sockets");
 
   for (let i = 0; i < puckSessions.length; i++) {
     const session = puckSessions[i];
 
     if (!session.isAlive) {
-      logger.continueDebug("terminating socket: %s", session.id);
+      logger.continueDebug("terminating dead socket: %s", session.id);
       session.ws.terminate();
       continue;
     }
@@ -25,7 +25,7 @@ setInterval(() => {
     const session = clientSessions[i];
 
     if (!session.isAlive) {
-      logger.continueDebug("terminating socket: %s", session.id);
+      logger.continueDebug("terminating dead socket: %s", session.id);
       session.ws.terminate();
       continue;
     }
@@ -34,7 +34,7 @@ setInterval(() => {
     session.ws.ping();
   }
 
-  logger.continueDebug("finished checking sockets");
+  logger.continueDebug("finished pinging sockets");
 }, parseInt(process.env.SESSION_TIMEOUT as string));
 
 export default (server: Server): Server => {
@@ -58,7 +58,7 @@ export default (server: Server): Server => {
       clientSessions.push({ id, ws, isAlive: true });
     }
 
-    logger.continueDebug("setting handlers");
+    logger.continueDebug("setting event handlers");
     ws.on("ping", websocketService.ping(id, ws));
     ws.on("pong", websocketService.pong(id));
     ws.on("message", websocketService.message(id, ws));
