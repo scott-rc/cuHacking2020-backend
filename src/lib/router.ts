@@ -13,7 +13,7 @@ export default (app: Application): Application => {
       await db.raw("select 1");
 
       logger.continueDebug("database connection good!");
-      res.json({ status: "healthy" });
+      res.status(200).json({ status: "healthy" });
     })
   );
 

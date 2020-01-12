@@ -39,7 +39,7 @@ export interface ClientSession {
 }
 
 export interface Event {
-  type: "CLIENT_CONNECT" | "CONNECT" | "POSITION_CHANGE";
+  type: "CLIENT_CONNECT" | "CONNECT" | "POSITION_CHANGE" | "RESET";
   data: {
     id: number;
   };
@@ -59,4 +59,8 @@ export interface PuckPositionChangeEvent extends Event {
     id: number;
     column: number;
   };
+}
+
+export interface PuckResetEvent extends Event {
+  type: "RESET";
 }

@@ -71,7 +71,6 @@ export const puckConnect = (
 
 export const puckPositionChange = async (
   id: string,
-  ws: WebSocket,
   maybeEvent: PuckPositionChangeEvent
 ) => {
   logger.continueDebug("validating event: %o", maybeEvent);
@@ -92,4 +91,30 @@ export const puckPositionChange = async (
   });
 
   await taskService.update(updateTask as any);
+};
+
+export const puckReset = (id: string) => {
+  logger.continueDebug("looking for session...");
+  const session = puckSessions.find(x => x.id === id);
+
+  if (!session) {
+    logger.continueDebug("couldn't find session");
+    return;
+  }
+
+  logger.continueDebug("removing task id from session");
+  session.taskId = undefined;
+
+  logger.continueDebug(
+    "emitting RESET_CONFIRM event to puck: %s (%s)",
+    session.puckId,
+    session.id
+  );
+  session.ws.send(
+    JSON.stringify({
+      event: {
+        type: "RESET_CONFIRM"
+      }
+    })
+  );
 };

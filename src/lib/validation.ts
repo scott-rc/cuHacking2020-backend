@@ -10,7 +10,7 @@ export const eventValidator = yup
   .object({
     type: yup
       .string()
-      .oneOf(["CLIENT_CONNECT", "POSITION_CHANGE", "CONNECT"])
+      .oneOf(["CLIENT_CONNECT", "POSITION_CHANGE", "CONNECT", "RESET"])
       .required(),
     data: yup
       .object({
