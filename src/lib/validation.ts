@@ -36,7 +36,7 @@ export const newTaskValidator = yup.object({
 });
 
 export const updateTaskValidator = yup.object({
-  task_id: yup
+  taskId: yup
     .number()
     .positive()
     .required(),
